@@ -1,19 +1,3 @@
-// TODO:
-// - combine the cardio template with the HICT setup to support
-//  gradual training and buildup.
-//  * requires persistent date tracking and corrections depending on breaking
-//     schedule: missing a weeks quota gets you to the beginning of the
-//       previous week if possible, otherwise first week.
-
-// http://img3.wikia.nocookie.net/__cb20120503030643/4chanfit/images/7/74/Cardio_Template.gif
-
-// - write a diet checking app complementary to this? see:
-// http://liamrosen.com/fitness.html
-
-// build/incorporate dumbbells/barbells?
-// http://gomestic.com/do-it-yourself/how-to-make-dumbbells-on-a-budget/
-// http://homemadestrength.blogspot.de/2011/05/strongest-bench-youll-never-buy.html
-
 window.onload = function() {
   "use strict";
   // YOLO: fragile stuff would need proper testing on low-end hardware.
