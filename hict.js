@@ -5,7 +5,7 @@ window.onload = function() {
   var li = document.getElementsByTagName("li"), lil = li.length;
   var button = document.getElementsByTagName("button")[0];
 
-  var e = 4, m = 3; // e:40, m:30; FIXME: need better names
+  var e = 40, m = 30; // FIXME: need better names
   // e is the time in seconds times 4 you spend on each station
   // m is the number of stations you will have total.
 
