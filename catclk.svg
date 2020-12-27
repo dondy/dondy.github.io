@@ -1,0 +1,76 @@
+<svg width="150" height="300" viewPort="0 0 150 300"
+    version="1.1" baseProfile="full"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:ev="http://www.w3.org/2001/xml-events">
+
+    <!-- TODO:
+        - arms (one animated) and legs
+        - ear path using h/v instead of l
+        - svg transform animations aren't additive to transform attribute :(
+
+        for reference see: https://github.com/BarkyTheDog/catclock
+    -->
+
+    <line id="tail" x1="75" x2="75" y1="200" y2="290"
+        stroke="black" stroke-width="14" stroke-linecap="round">
+        <animateTransform attributeName="transform"
+            type="rotate"
+            values="15 75 150; -15 75 150; 15 75 150"
+            dur="2s"
+            repeatCount="indefinite" />
+    </line>
+
+    <rect id="body" x="0" y="70" width="150" height="160" rx="30" />
+
+    <path id="left_ear" d="M25,5 l20,30 l15,-25 z" fill="grey"
+        stroke="black" stroke-width="4" stroke-linejoin="round" />
+
+    <path id="right_ear" d="M125,5 l-20,30 l-15,-25 z" fill="grey"
+        stroke="black" stroke-width="4" stroke-linejoin="round" />
+
+    <ellipse id="head" cx="75" cy="40" rx="50" ry="35" />
+
+    <circle id="left_eye" cx="55" cy="35" r="10" fill="white" />
+    <ellipse id="left_pupil" cx="55" cy="35" rx="5" ry="10" fill="seagreen" />
+
+    <use href="#left_eye" id="right_eye" x="40" />
+    <use href="#left_pupil" id="right_pupil" x="40" />
+
+    <ellipse id="nose" cx="75" cy="45" rx="8" ry="4" fill="grey" />
+
+    <circle id="clock_face" cx="75" cy="150" r="50" fill="white" stroke="black" stroke-width="8"
+        stroke-dasharray="1 25.179938779914945" />
+    <!-- sum(dasharray) = 2 pi r / 12 -->
+
+    <line id="hour_hand" x1="75" y1="150" x2="75" y2="115"
+        stroke="black" stroke-width="5" stroke-linecap="round" />
+
+    <line id="minute_hand" x1="75" y1="150" x2="75" y2="105"
+        stroke="black" stroke-width="3" stroke-linecap="round" />
+
+    <circle id="clock_pin" cx="75" cy="150" r="3" fill="white" stroke="red" />
+
+    <script><![CDATA[
+        const hour_hand = document.getElementById("hour_hand");
+        const hour_x1 = hour_hand.getAttributeNS(null, "x1");
+        const hour_y1 = hour_hand.getAttributeNS(null, "y1");
+
+        const minute_hand = document.getElementById("minute_hand");
+        const minute_x1 = minute_hand.getAttributeNS(null, "x1");
+        const minute_y1 = minute_hand.getAttributeNS(null, "y1");
+
+        function setTime() {
+            const current_time = new Date();
+
+            hour_hand.setAttributeNS(null, "transform",
+                `rotate(${current_time.getHours() % 12 * 30}, ${hour_x1}, ${hour_y1})`);
+
+            minute_hand.setAttributeNS(null, "transform",
+                `rotate(${current_time.getMinutes() * 6}, ${minute_x1}, ${minute_y1})`);
+        }
+
+        setTime();
+        setInterval(setTime, 1000);
+    ]]></script>
+</svg>
