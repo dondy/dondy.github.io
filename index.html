@@ -1,44 +1,268 @@
 <!DOCTYPE html>
+<!-- TODO: unpkg -->
+<html lang="en">
 
-<html>
-  <head>
-    <meta http-equiv="content-type" content="text/html;charset=utf-8">
-
-    <title>HICT</title>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="validation form for IBAN, ISIN and WKN" />
 
     <style>
-      * { margin: 0px }
+        .mrgn0 {
+            margin: 0;
+        }
 
-      h1 {
-        color: #f4f4f4;
-        font-size: 150%;
-        background: linear-gradient(#2c393b, #1c2224) }
+        .vh100 {
+            height: 100vh;
+        }
 
-      li { color: #eaeae7 }
+        .cntr {
+            display: grid;
+            place-items: center;
+        }
 
-      button {
-        font-size: 125%;
-        position: absolute;
-        bottom: 0px;
-        width: 100% }
+        .bg-grad {
+            background:
+                linear-gradient(transparent 40%, black, forestgreen),
+                radial-gradient(gold, rebeccapurple, midnightblue);
+        }
+
+        .abs {
+            position: absolute;
+        }
     </style>
-  </head>
 
-  <body>
-    <h1>
-      HICT:
-      <a href="http://ddg.gg/Workout Motivation Music">Lazy F*#?s!</a>
-    </h1>
+    <!-- polyfill for BigInt -->
+    <script src="https://peterolson.github.io/BigInteger.js/BigInteger.min.js"></script>
 
-    <ol>
-      <li> <!-- Total body --> High knees / running in place
-      <li> <!-- Lower body --> Wall sit or Squat
-      <li> <!-- Upper body --> Push-up (and rotation)
-      <li> <!-- Core       --> (Side) Plank or Abdominal crunch
-    </ol>
+    <title>Validate Form</title>
+</head>
 
-    <button>Start</button>
+<body>
+    <div id="root"></div>
 
-    <script src="hict.js"></script>
-  </body>
+    <noscript>This site requires JavaScript to work!</noscript>
+
+    <svg width="150" height="300" viewPort="0 0 150 300" class="abs" version="1.1" baseProfile="full"
+        xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns:ev="http://www.w3.org/2001/xml-events">
+
+        <!-- TODO:
+        - arms (one animated) and legs
+        - ear path using h/v instead of l
+        - svg transform animations aren't additive to transform attribute :(
+
+        for reference see: https://github.com/BarkyTheDog/catclock
+        -->
+
+        <line id="tail" x1="75" x2="75" y1="200" y2="290" stroke="black" stroke-width="14" stroke-linecap="round">
+            <animateTransform attributeName="transform" type="rotate" values="15 75 150; -15 75 150; 15 75 150" dur="2s"
+                repeatCount="indefinite" />
+        </line>
+
+        <rect id="body" x="0" y="70" width="150" height="160" rx="30" />
+
+        <path id="left_ear" d="M25,5 l20,30 l15,-25 z" fill="grey" stroke="black" stroke-width="4"
+            stroke-linejoin="round" />
+
+        <path id="right_ear" d="M125,5 l-20,30 l-15,-25 z" fill="grey" stroke="black" stroke-width="4"
+            stroke-linejoin="round" />
+
+        <ellipse id="head" cx="75" cy="40" rx="50" ry="35" />
+
+        <circle id="left_eye" cx="55" cy="35" r="10" fill="white" />
+        <ellipse id="left_pupil" cx="55" cy="35" rx="5" ry="10" fill="seagreen" />
+
+        <use href="#left_eye" id="right_eye" x="40" />
+        <use href="#left_pupil" id="right_pupil" x="40" />
+
+        <ellipse id="nose" cx="75" cy="45" rx="8" ry="4" fill="grey" />
+
+        <circle id="clock_face" cx="75" cy="150" r="50" fill="white" stroke="black" stroke-width="8" />
+
+        <line id="hour_hand" x1="75" y1="150" x2="75" y2="115" stroke="black" stroke-width="5" stroke-linecap="round" />
+
+        <line id="minute_hand" x1="75" y1="150" x2="75" y2="105" stroke="black" stroke-width="3"
+            stroke-linecap="round" />
+
+        <circle id="clock_pin" cx="75" cy="150" r="3" fill="white" stroke="red" />
+
+        <script>
+            const clock_face = document.getElementById("clock_face");
+            const phase = 2 * Math.PI * +clock_face.getAttributeNS(null, "r") / 12;
+            clock_face.setAttributeNS(null, "stroke-dasharray", "1 " + (phase - 1));
+
+            const hour_hand = document.getElementById("hour_hand");
+            const hour_x1 = hour_hand.getAttributeNS(null, "x1");
+            const hour_y1 = hour_hand.getAttributeNS(null, "y1");
+
+            const minute_hand = document.getElementById("minute_hand");
+            const minute_x1 = minute_hand.getAttributeNS(null, "x1");
+            const minute_y1 = minute_hand.getAttributeNS(null, "y1");
+
+            function setTime() {
+                const current_time = new Date();
+
+                hour_hand.setAttributeNS(null, "transform",
+                    `rotate(${current_time.getHours() % 12 * 30}, ${hour_x1}, ${hour_y1})`);
+
+                minute_hand.setAttributeNS(null, "transform",
+                    `rotate(${current_time.getMinutes() * 6}, ${minute_x1}, ${minute_y1})`);
+            }
+
+            setTime();
+            setInterval(setTime, 1000);
+        </script>
+    </svg>
+
+    <script>
+        function set_attribs(el, props) {
+            Object.entries(props).forEach(([k, v]) => el.setAttribute(k, v));
+        }
+
+        function WKN_input(props) {
+            const input = document.createElement("input");
+
+            set_attribs(input, {
+                type: "text",
+                name: "wkn",
+                size: 6,
+                required: "",
+                minLength: 6,
+                maxLength: 6,
+                pattern: "[A-HJ-NP-Z\\d]{6}", // TODO: exact pattern
+                ...props?.input // FIXME: not supported in IE11
+            });
+
+            const label = document.createElement("label");
+
+            set_attribs(label, { ...props?.label });
+
+            label.appendChild(document.createTextNode("WKN: "));
+            label.appendChild(input);
+            return label;
+        }
+
+        function ISIN_input(props) {
+            const input = document.createElement("input");
+
+            set_attribs(input, {
+                type: "text",
+                name: "isin",
+                size: 12,
+                required: "",
+                minLength: 12,
+                maxLength: 12,
+                pattern: "[A-Z]{2}\\d{10}",
+                ...props?.input
+            });
+
+            input.addEventListener("input", (ev) => {
+                if (input.required) {
+                    const val = input.value;
+                    if (input.validity.patternMismatch) {
+                        input.setCustomValidity("ISIN pattern failed!");
+                    } else if ( // Luhn algorithm
+                        (10 -
+                            (val.slice(0, -1)
+                                .split('')
+                                .map((ch) => parseInt(ch, 36))
+                                .join('').split('')
+                                .map((ch, idx, arr) =>
+                                    +ch * (arr.length % 2 === idx % 2 ? 1 : 2))
+                                .reduce((acc, num) =>
+                                    acc + (num > 9 ? num - 9 : num), 0)
+                                % 10)) % 10 === +val.charAt(val.length - 1)
+                    ) {
+                        input.setCustomValidity("ISIN check digit failed!");
+                    } else {
+                        input.setCustomValidity("");
+                    }
+                }
+            });
+
+            const label = document.createElement("label");
+
+            set_attribs(label, { ...props?.label });
+
+            label.appendChild(document.createTextNode("ISIN: "));
+            label.appendChild(input);
+            return label;
+        }
+
+        function IBAN_input(props) {
+            const input = document.createElement("input");
+
+            set_attribs(input, {
+                type: "text",
+                name: "iban",
+                size: 34,
+                required: "",
+                minLength: 4,
+                maxLength: 34,
+                pattern: "[A-Z]{2}\\d{2}\\w{0,30}",
+                ...props?.input
+            });
+
+            input.addEventListener("input", (ev) => {
+                if (input.required) {
+                    const val = input.value;
+                    // TODO: fetch BBAN validation for national prefix
+                    if (input.validity.patternMismatch) {
+                        input.setCustomValidity("IBAN pattern failed!");
+                    } else if ( // check digits: mod-97, ISO 7064
+                        // prettier-ignore
+                        bigInt(
+                            (val.slice(4) + val.slice(0, 4))
+                                .split("")
+                                .map((ch) => parseInt(ch, 36))
+                                .join("")
+                        ).mod(97).neq(1)
+                    ) {
+                        input.setCustomValidity("IBAN check digits failed!");
+                    } else {
+                        input.setCustomValidity("");
+                    }
+                }
+            });
+
+            const label = document.createElement("label");
+
+            set_attribs(label, { ...props?.label });
+
+            label.appendChild(document.createTextNode("IBAN: "));
+            label.appendChild(input);
+            return label;
+        }
+
+        function submit_button(props) {
+            const button = document.createElement("button");
+
+            set_attribs(button, { ...props?.button });
+
+            button.addEventListener("click", (ev) =>
+                button.disabled = button.form.checkValidity());
+
+            button.appendChild(document.createTextNode("Submit"));
+            return button;
+        }
+
+        function app(root) {
+            document.body.className = "mrgn0 vh100 cntr bg-grad";
+
+            const h1 = document.createElement("h1");
+            h1.appendChild(document.createTextNode("Validating..."));
+
+            const form = document.createElement("form");
+            [WKN_input, ISIN_input, IBAN_input, submit_button].forEach((el) =>
+                form.appendChild(el()));
+
+            [h1, form].forEach((el) => root.appendChild(el));
+            return root;
+        }
+
+        console.log(app(document.querySelector("div#root")));
+    </script>
+</body>
+
 </html>
