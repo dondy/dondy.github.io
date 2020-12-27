@@ -78,7 +78,8 @@
 
         <ellipse id="nose" cx="75" cy="45" rx="8" ry="4" fill="grey" />
 
-        <circle id="clock_face" cx="75" cy="150" r="50" fill="white" stroke="black" stroke-width="8" />
+        <circle id="clock_face" cx="75" cy="150" r="50" fill="white"
+            stroke="black" stroke-width="8" stroke-dasharray="1 25.179938779914945"/>
 
         <line id="hour_hand" x1="75" y1="150" x2="75" y2="115" stroke="black" stroke-width="5" stroke-linecap="round" />
 
@@ -88,10 +89,6 @@
         <circle id="clock_pin" cx="75" cy="150" r="3" fill="white" stroke="red" />
 
         <script>
-            const clock_face = document.getElementById("clock_face");
-            const phase = 2 * Math.PI * +clock_face.getAttributeNS(null, "r") / 12;
-            clock_face.setAttributeNS(null, "stroke-dasharray", "1 " + (phase - 1));
-
             const hour_hand = document.getElementById("hour_hand");
             const hour_x1 = hour_hand.getAttributeNS(null, "x1");
             const hour_y1 = hour_hand.getAttributeNS(null, "y1");
