@@ -51,7 +51,7 @@
 
     <circle id="clock_pin" cx="75" cy="150" r="3" fill="white" stroke="red" />
 
-    <script><![CDATA[
+    <script>
         const hour_hand = document.getElementById("hour_hand");
         const hour_x1 = hour_hand.getAttributeNS(null, "x1");
         const hour_y1 = hour_hand.getAttributeNS(null, "y1");
@@ -72,5 +72,5 @@
 
         setTime();
         setInterval(setTime, 1000);
-    ]]></script>
+    </script>
 </svg>
